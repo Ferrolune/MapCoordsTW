@@ -11,3 +11,5 @@
 coordinates.lua
 waypoints.lua
 keybinds.lua
+ZoneShortToLong.lua
+guildtracker.lua
