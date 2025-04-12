@@ -1,10 +1,10 @@
 local coordFrame = CreateFrame("Frame", "WorldMapCoordsFrame", WorldMapFrame)
 coordFrame:SetWidth(300)
 coordFrame:SetHeight(24)
-coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 10, 10)
+coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 0, 0)
 
 coordFrame.text = coordFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-coordFrame.text:SetAllPoints()
+coordFrame.text:SetPoint("LEFT", coordFrame, "LEFT", 10, 0) -- This ensures the text is anchored to the bottom-left corner
 
 -- Returns true if the currently viewed map matches the player's zone.
 local function IsMapPlayerZone()
@@ -46,12 +46,24 @@ local function GetMouseCoords()
     return nil, nil
 end
 
+
+local function UpdateCoordTextLocation()
+    if (WorldMapFrameMaximizeButton:IsVisible()) then
+        coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 0, 8)
+    else
+        coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 0, -18)
+    end
+end
+
+
 -- OnUpdate loop to refresh the coordinate text.
-coordFrame:SetScript("OnUpdate", function(self)
+coordFrame:SetScript("OnUpdate", function()
     self = coordFrame
     if not WorldMapFrame:IsVisible() then
         return
     end
+    UpdatewpButtonLocation()
+    UpdateCoordTextLocation()
 
     local playerX, playerY = GetPlayerCoords()
     local mouseX, mouseY = GetMouseCoords()

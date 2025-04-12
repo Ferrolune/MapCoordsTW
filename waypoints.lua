@@ -21,9 +21,20 @@ Waypoints = {}
 -- Create a button on the World Map
 ------------------------------------------------
 local wpButton = CreateFrame("Button", "AddWaypointButton", WorldMapFrame, "UIPanelButtonTemplate")
+
+
+function UpdatewpButtonLocation()
+    if(WorldMapFrameMaximizeButton:IsVisible()) then
+        wpButton:SetPoint("RIGHT", WorldMapFrameMaximizeButton, "LEFT", 4, 0)
+    else
+        wpButton:SetPoint("RIGHT", WorldMapFrameMinimizeButton, "LEFT", 5, 0)
+    end
+end
+
+
 wpButton:SetWidth(80)
-wpButton:SetHeight(22)
-wpButton:SetPoint("TOPRIGHT", WorldMapFrame, "TOPRIGHT", -10, -10)
+wpButton:SetHeight(19)
+wpButton:SetPoint("RIGHT", WorldMapFrameMinimizeButton, "LEFT", 5, 0)
 wpButton:SetText("Add WP")
 
 ------------------------------------------------
