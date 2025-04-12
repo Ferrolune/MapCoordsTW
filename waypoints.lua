@@ -64,20 +64,18 @@ cancelButton:SetText("Cancel")
 ------------------------------------------------
 local function ExtractCoordinates(input)
     local coord1, coord2
-    -- Use gsub with a function callback to capture the two numbers.
-    string.gsub(input, "^(%d+)%s*[:.,;%s]+%s*(%d+)$", function(a, b)
+    string.gsub(input, "^(%d+%.?%d*)%s*[:.,;%s]+%s*(%d+%.?%d*)$", function(a, b)
         coord1 = a
         coord2 = b
     end)
     return coord1, coord2
 end
 
+
 local function print(message)
     DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 0.0)
-
-
-
 end
+
 ------------------------------------------------
 -- Popup button handlers
 ------------------------------------------------
@@ -137,7 +135,7 @@ function UpdateWaypoints()
     for i = 1, numZoneData do
         local cx, cy = unpack(zoneData[i])
         if not wpIcons[i] then
-            wpIcons[i] = CreateFrame("Frame", nil, WorldMapFrame)
+            wpIcons[i] = CreateFrame("Frame", nil, WorldMapButton)
             wpIcons[i]:SetWidth(12)
             wpIcons[i]:SetHeight(12)
             wpIcons[i]:SetFrameStrata("TOOLTIP")
@@ -160,8 +158,28 @@ function UpdateWaypoints()
         local width = WorldMapButton:GetWidth()
         local height = WorldMapButton:GetHeight()
         -- Calculate offsets based on the normalized coordinates (0-100 stored, so divide by 100)
-        icon:SetPoint("TOPLEFT", WorldMapButton, "TOPLEFT", (cx / 100) * width - (icon:GetWidth() / 2),
-            -(cy / 100) * height - (icon:GetHeight() / 2))
+
+        local mapLeft = WorldMapButton:GetLeft()
+        local mapTop = WorldMapButton:GetTop()
+        local mapWidth = WorldMapButton:GetWidth()
+        local mapHeight = WorldMapButton:GetHeight()
+        local scale = WorldMapButton:GetEffectiveScale()
+
+        -- Convert to screen space
+        local x = (cx / 100) * mapWidth
+        local y = (cy / 100) * mapHeight
+        y = y -12
+
+        y = math.min(0,y)
+        y = math.max(100,y)
+
+        x = math.min(0,x)
+        y = math.max(100,x)
+        -- Then proceed with absolute positioning (as per my previous message)
+
+        -- Place icon using absolute screen coordinates
+        icon:ClearAllPoints()
+        icon:SetPoint("TOPLEFT", WorldMapButton, "TOPLEFT", x - (icon:GetWidth() / 2), -y - (icon:GetHeight() / 2)) -- negate Y for TOPLEFT anchoring
 
 
     end
@@ -181,3 +199,5 @@ end
 WorldMapFrame:SetScript("OnUpdate", function()
     UpdateWaypoints()
 end)
+
+

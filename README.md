@@ -9,9 +9,9 @@ POI is the current WIP before we're adding anything else. Should take a month be
 
 Roadmap
 
-1. Setting waypoints on different maps
-2. Removing waypoints
-3. Waypoint memory
+1. Fixing the alignment issues of the waypoints, coordinates, and buttons on differing worldmapframe sizes
+2. Adding a feature to remove waypoints
+3. Waypoint Waypoint memory
 4. Waypoint details
 
 

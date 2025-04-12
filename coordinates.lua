@@ -1,5 +1,5 @@
 local coordFrame = CreateFrame("Frame", "WorldMapCoordsFrame", WorldMapFrame)
-coordFrame:SetWidth(200)
+coordFrame:SetWidth(300)
 coordFrame:SetHeight(24)
 coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 10, 10)
 
@@ -8,8 +8,8 @@ coordFrame.text:SetAllPoints()
 
 -- Returns true if the currently viewed map matches the player's zone.
 local function IsMapPlayerZone()
-    local mapZone = GetMapInfo()         -- current map name
-    local playerZone = GetRealZoneText()   -- player's actual zone
+    local mapZone = GetMapInfo()
+    local playerZone = GetRealZoneText()
     return mapZone == playerZone
 end
 
@@ -20,7 +20,7 @@ local function GetPlayerCoords()
     end
     local posX, posY = GetPlayerMapPosition("player")
     if posX and posY and posX > 0 and posY > 0 then
-        return math.floor(posX * 100), math.floor(posY * 100)
+        return string.format("%.1f", posX * 100), string.format("%.1f", posY * 100)
     end
     return nil, nil
 end
@@ -41,7 +41,7 @@ local function GetMouseCoords()
     local cy = (top - y) / height
 
     if cx >= 0 and cx <= 1 and cy >= 0 and cy <= 1 then
-        return math.floor(cx * 100), math.floor(cy * 100)
+        return string.format("%.1f", cx * 100), string.format("%.1f", cy * 100)
     end
     return nil, nil
 end
@@ -49,24 +49,25 @@ end
 -- OnUpdate loop to refresh the coordinate text.
 coordFrame:SetScript("OnUpdate", function(self)
     self = coordFrame
-    if not WorldMapFrame:IsVisible() then return end
+    if not WorldMapFrame:IsVisible() then
+        return
+    end
 
     local playerX, playerY = GetPlayerCoords()
     local mouseX, mouseY = GetMouseCoords()
 
     local displayText = ""
     if playerX and playerY then
-        displayText = displayText .. string.format("Player: %d, %d", playerX, playerY)
+        displayText = displayText .. "Player: " .. playerX .. ", " .. playerY
     else
         displayText = displayText .. "Player: --, --"
     end
 
     if mouseX and mouseY then
-        displayText = displayText .. string.format(" | Mouse: %d, %d", mouseX, mouseY)
+        displayText = displayText .. " | Mouse: " .. mouseX .. ", " .. mouseY
     else
         displayText = displayText .. " | Mouse: --, --"
     end
 
     self.text:SetText(displayText)
 end)
-
