@@ -84,7 +84,7 @@ addButton:SetScript("OnClick", function()
     if num1 and num2 then
         local cx = tonumber(num1)
         local cy = tonumber(num2)
-        local zone = GetRealZoneText() -- store waypoint under current zone
+        local zone = GetMapInfo() -- store waypoint under current zone
 
         if not Waypoints[zone] then
             Waypoints[zone] = {}
@@ -122,8 +122,9 @@ local wpIcons = {} -- list of icon frames for the current zone
 
 -- Updates/positions icons for waypoints on the World Map.
 function UpdateWaypoints()
-    local currentZone = GetRealZoneText()
+    local currentZone = GetMapInfo()
     local zoneData = Waypoints[currentZone]
+
     -- If there are no waypoints for this zone, hide any existing icons.
     if not zoneData then
         for i, icon in pairs(wpIcons) do
