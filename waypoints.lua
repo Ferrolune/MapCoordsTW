@@ -22,8 +22,11 @@ Waypoints = {}
 ------------------------------------------------
 local wpButton = CreateFrame("Button", "AddWaypointButton", WorldMapFrame, "UIPanelButtonTemplate")
 
+local wpPopup = CreateFrame("Frame", "WaypointPopupFrame", WorldMapFrame)
 
 function UpdatewpButtonLocation()
+    wpPopup:SetFrameStrata("FULLSCREEN_DIALOG") -- Set higher strata than the map
+
     if(WorldMapFrameMaximizeButton:IsVisible()) then
         wpButton:SetPoint("RIGHT", WorldMapFrameMaximizeButton, "LEFT", 4, 0)
     else
@@ -40,11 +43,9 @@ wpButton:SetText("Add WP")
 ------------------------------------------------
 -- Create the popup frame for entering coordinates
 ------------------------------------------------
-local wpPopup = CreateFrame("Frame", "WaypointPopupFrame", WorldMapFrame)
 wpPopup:SetWidth(220)
 wpPopup:SetHeight(100)
 wpPopup:SetPoint("CENTER", WorldMapFrame, "CENTER")
-wpPopup:Hide()
 
 
 wpPopup:SetBackdrop({
@@ -61,9 +62,13 @@ wpPopup:SetBackdrop({
     } -- Adjust padding around the border
 })
 
-wpPopup:SetBackdropColor(0, 0, 0, 0.7) -- Set background color (black with 70% opacity)
+wpPopup:SetFrameStrata("FULLSCREEN_DIALOG") -- Set higher strata than the map
+
+
+
 wpPopup:SetBackdropBorderColor(1, 1, 1) -- Set border color (white)
 
+wpPopup:Hide()
 
 wpPopup.title = wpPopup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 wpPopup.title:SetPoint("TOP", wpPopup, "TOP", 0, -10)

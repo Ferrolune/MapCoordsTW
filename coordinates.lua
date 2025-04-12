@@ -48,6 +48,7 @@ end
 
 
 local function UpdateCoordTextLocation()
+    coordFrame:SetFrameStrata("FULLSCREEN_DIALOG") -- Set higher strata than the map
     if (WorldMapFrameMaximizeButton:IsVisible()) then
         coordFrame:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 0, 8)
     else
@@ -64,6 +65,7 @@ coordFrame:SetScript("OnUpdate", function()
     end
     UpdatewpButtonLocation()
     UpdateCoordTextLocation()
+
 
     local playerX, playerY = GetPlayerCoords()
     local mouseX, mouseY = GetMouseCoords()
