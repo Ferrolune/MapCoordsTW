@@ -1,0 +1,12 @@
+## Interface: 11200
+## Title: Map Coordinates
+## Notes: Shows coordinates on map and provides a way to place waypoints.
+## Author: Ferrolune
+## DefaultState: enabled
+## LoadOnDemand: 0
+## X-Category: UI
+## Version: 1.0
+
+#beta
+coordinates.lua
+waypoints.lua
