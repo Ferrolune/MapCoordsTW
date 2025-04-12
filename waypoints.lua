@@ -35,6 +35,25 @@ wpPopup:SetHeight(100)
 wpPopup:SetPoint("CENTER", WorldMapFrame, "CENTER")
 wpPopup:Hide()
 
+
+wpPopup:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background", -- Background texture
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border", -- Border texture
+    tile = true,
+    tileSize = 32,
+    edgeSize = 16,
+    insets = {
+        left = 4,
+        right = 4,
+        top = 4,
+        bottom = 4
+    } -- Adjust padding around the border
+})
+
+wpPopup:SetBackdropColor(0, 0, 0, 0.7) -- Set background color (black with 70% opacity)
+wpPopup:SetBackdropBorderColor(1, 1, 1) -- Set border color (white)
+
+
 wpPopup.title = wpPopup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 wpPopup.title:SetPoint("TOP", wpPopup, "TOP", 0, -10)
 wpPopup.title:SetText("Enter Coordinates")
@@ -111,11 +130,49 @@ wpButton:SetScript("OnClick", function()
     wpEditBox:SetFocus()
 end)
 
+wpEditBox:SetScript("OnEnterPressed", function()
+    local text = wpEditBox:GetText()
+
+    local num1, num2 = ExtractCoordinates(text)
+    if num1 and num2 then
+        local cx = tonumber(num1)
+        local cy = tonumber(num2)
+        local zone = GetMapInfo() -- store waypoint under current zone
+
+        if not Waypoints[zone] then
+            Waypoints[zone] = {}
+        end
+        table.insert(Waypoints[zone], {cx, cy})
+        print(string.format("%s %s,%s %s %s", "Waypoint added:", cx, cy, "in zone", zone))
+
+        wpPopup:Hide()
+        wpEditBox:SetText("")
+        UpdateWaypoints() -- update the icons on the map
+    else
+        print("Invalid coordinate format. Examples: 9:90, 09,90, 90 90")
+    end
+end)
+
+
+wpEditBox:SetScript("OnEscapePressed", function()
+    wpPopup:Hide()
+    wpEditBox:SetText("")
+end)
+
+
 ------------------------------------------------
 -- Waypoint icon handling
 -- We store/reuse icons in a table to avoid creating duplicate icons.
 ------------------------------------------------
 local wpIcons = {} -- list of icon frames for the current zone
+
+
+local function Clamp(val, min, max)
+    if val < min then return min end
+    if val > max then return max end
+    return val
+end
+
 
 -- Updates/positions icons for waypoints on the World Map.
 function UpdateWaypoints()
@@ -167,14 +224,13 @@ function UpdateWaypoints()
 
         -- Convert to screen space
         local x = (cx / 100) * mapWidth
-        local y = (cy / 100) * mapHeight
-        y = y -12
+        local y = ((cy / 100) * mapHeight)
+        y = Clamp(y, 0, mapHeight) -12
 
-        y = math.min(0,y)
-        y = math.max(100,y)
+        x = Clamp(x,0,mapWidth)
 
-        x = math.min(0,x)
-        y = math.max(100,x)
+
+
         -- Then proceed with absolute positioning (as per my previous message)
 
         -- Place icon using absolute screen coordinates
