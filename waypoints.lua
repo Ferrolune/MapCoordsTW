@@ -72,7 +72,12 @@ local function ExtractCoordinates(input)
     return coord1, coord2
 end
 
+local function print(message)
+    DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 0.0)
 
+
+
+end
 ------------------------------------------------
 -- Popup button handlers
 ------------------------------------------------
@@ -87,12 +92,8 @@ addButton:SetScript("OnClick", function()
         if not Waypoints[zone] then
             Waypoints[zone] = {}
         end
-        print(cx)
-        print(cy)
-        print(zone)
-
         table.insert(Waypoints[zone], {cx, cy})
-        print(string.format("%s %s,%s %s %s","Waypoint added:", cx, cy, "in zone", zone))
+        print(string.format("%s %s,%s %s %s", "Waypoint added:", cx, cy, "in zone", zone))
 
         wpPopup:Hide()
         wpEditBox:SetText("")
