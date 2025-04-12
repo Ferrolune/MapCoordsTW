@@ -16,9 +16,8 @@ local function SendWaypoint()
     local playerZone = GetZoneText()
     local playerClass = UnitClass("player")
     local x, y = GetPlayerMapPosition("player")
-    x = math.floor(x * 10000 + 0.5) / 100
-    y = math.floor(y * 10000 + 0.5) / 100
-
+    x = math.floor(x * 100000 + 0.5) / 1000
+    y = math.floor(y * 100000 + 0.5) / 1000
     -- Check if the player is in the same zone or if it's a zone change
     if currentZone == playerZone then
         -- Update last valid coordinates only if they're different
@@ -80,7 +79,7 @@ function UpdateMapMarker(pname, x, y)
             guildmate.marker = CreateFrame("Frame", nil, WorldMapButton)
             guildmate.marker:SetWidth(20)
             guildmate.marker:SetHeight(20)
-            guildmate.marker:SetFrameStrata("FULLSCREEN")
+            guildmate.marker:SetFrameStrata("FULLSCREEN_DIALOG")
 
             local texture = guildmate.marker:CreateTexture(nil, "OVERLAY")
             texture:SetTexture(GuildMates[pname].icon)
@@ -123,7 +122,7 @@ updateFrame:SetScript("OnUpdate", function()
     local now = GetTime()
 
     -- Send player data ~60 times a second
-    if now - lastUpdateTime >= 0.016 then
+    if now - lastUpdateTime >= 0.2 then
         lastUpdateTime = now
         SendWaypoint()
         HideAllMarkers()
@@ -149,6 +148,7 @@ updateFrame:SetScript("OnUpdate", function()
 
     for pname, data in pairs(GuildMates) do
         if data.zone == playerZone then
+            data.marker:SetFrameStrata("FULLSCREEN_DIALOG")
             -- Add or move the marker for guildmate if they are in the same zone
             UpdateMapMarker(pname, data.x, data.y)
         else
@@ -164,6 +164,7 @@ end)
 local eventReceiver = CreateFrame("Frame")
 eventReceiver:RegisterEvent("CHAT_MSG_ADDON")
 eventReceiver:SetScript("OnEvent", function()
+
     if event == "CHAT_MSG_ADDON" and arg1 == "WAYPOINTSTW" then
         local pname, zone, x, y, class
         local i = 0
@@ -182,6 +183,7 @@ eventReceiver:SetScript("OnEvent", function()
             end
         end)
         if pname and zone and x and y then
+
             -- Check if the guildmate already exists in the table
             if GuildMates[pname] then
                 -- Update the existing guildmate data (no need to reset marker to nil)
