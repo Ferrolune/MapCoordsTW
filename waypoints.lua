@@ -89,9 +89,12 @@ addButton:SetScript("OnClick", function()
         if not Waypoints[zone] then
             Waypoints[zone] = {}
         end
+        print(cx)
+        print(cy)
+        print(zone)
 
         table.insert(Waypoints[zone], {cx, cy})
-        print("Waypoint added:", cx, cy, "in zone", zone)
+        print(string.format("%s %s,%s %s %s","Waypoint added:", cx, cy, "in zone", zone))
 
         wpPopup:Hide()
         wpEditBox:SetText("")
@@ -119,9 +122,8 @@ local wpIcons = {} -- list of icon frames for the current zone
 
 -- Updates/positions icons for waypoints on the World Map.
 function UpdateWaypoints()
-    local currentZone = GetMapInfo() or GetRealZoneText()
+    local currentZone = GetRealZoneText()
     local zoneData = Waypoints[currentZone]
-
     -- If there are no waypoints for this zone, hide any existing icons.
     if not zoneData then
         for i, icon in pairs(wpIcons) do
@@ -160,6 +162,8 @@ function UpdateWaypoints()
         -- Calculate offsets based on the normalized coordinates (0-100 stored, so divide by 100)
         icon:SetPoint("TOPLEFT", WorldMapButton, "TOPLEFT", (cx / 100) * width - (icon:GetWidth() / 2),
             -(cy / 100) * height - (icon:GetHeight() / 2))
+
+
     end
 
     -- If there are extra icons (from a previous zone with more waypoints), hide them.
@@ -177,4 +181,3 @@ end
 WorldMapFrame:SetScript("OnUpdate", function()
     UpdateWaypoints()
 end)
-
