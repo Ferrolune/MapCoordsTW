@@ -177,3 +177,4 @@ end
 WorldMapFrame:SetScript("OnUpdate", function()
     UpdateWaypoints()
 end)
+

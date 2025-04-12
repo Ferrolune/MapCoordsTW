@@ -9,16 +9,10 @@ POI is the current WIP before we're adding anything else. Should take a month be
 
 Roadmap
 
-1. POI data (60% Done)
-2. Dungeons/Raids/PvP entrances
-3. World bosses
-4. World buffs
-5. Profession trainers
-6. Transportation locations (flight masters, zeppelin, boats, portals, translocation orbs, goblin teleporters, etc)
-7. Maplinks
-8. Innkeepers
-9. Guild Houses
-10. Optimizations
-11. Whatever else I feel like adding.
+1. Setting waypoints on different maps
+2. Removing waypoints
+3. Waypoint memory
+4. Waypoint details
+
 
 Currently, contributions, pull requests, and issues are ignored until this roadmap is done. There's a lot of data and exploration to cover before it's done.

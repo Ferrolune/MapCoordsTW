@@ -69,3 +69,4 @@ coordFrame:SetScript("OnUpdate", function(self)
 
     self.text:SetText(displayText)
 end)
+
