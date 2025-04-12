@@ -50,3 +50,15 @@ g.ZoneShortsToFullName = {
     ["BlackstoneIsland"] = "Blackstone Island",
     ["Hyjal"] = "Hyjal"
 }
+
+g.classIcons = {
+    ["Druid"] = "Interface\\AddOns\\MapCoordinates\\Icons\\DRUID.tga",
+    ["Warrior"] = "Interface\\AddOns\\MapCoordinates\\Icons\\WARRIOR.tga",
+    ["Rogue"] = "Interface\\AddOns\\MapCoordinates\\Icons\\ROGUE.tga",
+    ["Mage"] = "Interface\\AddOns\\MapCoordinates\\Icons\\MAGE.tga",
+    ["Shaman"] = "Interface\\AddOns\\MapCoordinates\\Icons\\SHAMAN.tga",
+    ["Hunter"] = "Interface\\AddOns\\MapCoordinates\\Icons\\HUNTER.tga",
+    ["Priest"] = "Interface\\AddOns\\MapCoordinates\\Icons\\PRIEST.tga",
+    ["Paladin"] = "Interface\\AddOns\\MapCoordinates\\Icons\\PALADIN.tga",
+    ["Warlock"] = "Interface\\AddOns\\MapCoordinates\\Icons\\WARLOCK.tga"
+}

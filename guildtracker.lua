@@ -14,7 +14,7 @@ local function SendWaypoint()
     local name = UnitName("player")
     local currentZone = GetZoneLongName(GetMapInfo())
     local playerZone = GetZoneText()
-
+    local playerClass = UnitClass("player")
     local x, y = GetPlayerMapPosition("player")
     x = math.floor(x * 10000 + 0.5) / 100
     y = math.floor(y * 10000 + 0.5) / 100
@@ -35,7 +35,7 @@ local function SendWaypoint()
     end
 
     -- Construct the message to send
-    local msg = string.format("%s,%s,%.2f,%.2f", name, currentZone, x, y)
+    local msg = string.format("%s,%s,%.2f,%.2f,%s", name, currentZone, x, y, playerClass)
     SendAddonMessage("WAYPOINTSTW", msg, "GUILD")
 end
 
@@ -78,15 +78,17 @@ function UpdateMapMarker(pname, x, y)
         if not guildmate.marker then
             -- Create the marker if it doesn't exist
             guildmate.marker = CreateFrame("Frame", nil, WorldMapButton)
-            guildmate.marker:SetWidth(12)
-            guildmate.marker:SetHeight(12)
+            guildmate.marker:SetWidth(20)
+            guildmate.marker:SetHeight(20)
             guildmate.marker:SetFrameStrata("FULLSCREEN")
 
             local texture = guildmate.marker:CreateTexture(nil, "OVERLAY")
+            print(GuildMates[pname].icon)
+            texture:SetTexture(GuildMates[pname].icon)
+            --texture:SetTexture("Interface\\Icons\\Inv_banner_03")
+
             texture:SetAllPoints(guildmate.marker)
 
-            -- Assuming you want a green square for the marker
-            texture:SetTexture(0, 1, 0) -- Green color (RGB)
             guildmate.marker.texture = texture
         end
 
@@ -121,8 +123,8 @@ local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript("OnUpdate", function()
     local now = GetTime()
 
-    -- Send player data every 5 seconds
-    if now - lastUpdateTime >= 5 then
+    -- Send player data ~60 times a second
+    if now - lastUpdateTime >= 0.016 then
         lastUpdateTime = now
         SendWaypoint()
         HideAllMarkers()
@@ -164,7 +166,7 @@ local eventReceiver = CreateFrame("Frame")
 eventReceiver:RegisterEvent("CHAT_MSG_ADDON")
 eventReceiver:SetScript("OnEvent", function()
     if event == "CHAT_MSG_ADDON" and arg1 == "WAYPOINTSTW" then
-        local pname, zone, x, y
+        local pname, zone, x, y, class
         local i = 0
         string.gsub(arg2, "([^,]+)", function(match)
             i = i + 1
@@ -176,9 +178,10 @@ eventReceiver:SetScript("OnEvent", function()
                 x = tonumber(match)
             elseif i == 4 then
                 y = tonumber(match)
+            elseif i == 5 then
+                class = match
             end
         end)
-
         if pname and zone and x and y then
             -- Check if the guildmate already exists in the table
             if GuildMates[pname] then
@@ -187,7 +190,7 @@ eventReceiver:SetScript("OnEvent", function()
                 GuildMates[pname].x = x
                 GuildMates[pname].y = y
                 GuildMates[pname].lastupdate = GetTime()
-
+                GuildMates[pname].class = class
                 -- If the player is in the same zone, move the marker or show it
                 if GetZoneLongName(GetZoneText()) == zone then
                     UpdateMapMarker(pname, x, y)
@@ -200,8 +203,10 @@ eventReceiver:SetScript("OnEvent", function()
                     zone = zone,
                     x = x,
                     y = y,
+                    class = class,
                     lastupdate = GetTime(),
-                    marker = nil -- Initially no marker
+                    marker = nil, -- Initially no marker
+                    icon = getglobal("WaypointPopupFrame").classIcons[class]
                 }
 
                 -- If the player is in the same zone, create the marker right away
@@ -211,8 +216,7 @@ eventReceiver:SetScript("OnEvent", function()
             end
 
             -- Debug message (optional)
-            DEFAULT_CHAT_FRAME:AddMessage(string.format("|cffffcc00[Waypoint]|r %s in %s at (%.2f, %.2f)", pname, zone,
-                x, y))
+            -- print(string.format("|cffffcc00[Waypoint]|r %s in %s at (%.2f, %.2f) class %s", pname, zone, x, y, class))
         end
 
     end
