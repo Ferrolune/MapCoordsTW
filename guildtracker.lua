@@ -83,7 +83,6 @@ function UpdateMapMarker(pname, x, y)
             guildmate.marker:SetFrameStrata("FULLSCREEN")
 
             local texture = guildmate.marker:CreateTexture(nil, "OVERLAY")
-            print(GuildMates[pname].icon)
             texture:SetTexture(GuildMates[pname].icon)
             --texture:SetTexture("Interface\\Icons\\Inv_banner_03")
 
