@@ -63,17 +63,15 @@ cancelButton:SetText("Cancel")
 -- Pattern allows one or more digits on each side.
 ------------------------------------------------
 local function ExtractCoordinates(input)
-    -- Pattern explanation:
-    --   ^(%d+)%s*[:.,;%s]+%s*(%d+)$
-    --     ^         : start of string
-    --     (%d+)     : one or more digits (first coordinate)
-    --     %s*       : any whitespace
-    --     [:. ,;]+ : one or more delimiters among colon, period, comma, semicolon, or whitespace
-    --     %s*       : any whitespace
-    --     (%d+)     : one or more digits (second coordinate)
-    --     $         : end of string
-    return string.match(input, "^(%d+)%s*[:.,;%s]+%s*(%d+)$")
+    local coord1, coord2
+    -- Use gsub with a function callback to capture the two numbers.
+    string.gsub(input, "^(%d+)%s*[:.,;%s]+%s*(%d+)$", function(a, b)
+        coord1 = a
+        coord2 = b
+    end)
+    return coord1, coord2
 end
+
 
 ------------------------------------------------
 -- Popup button handlers
