@@ -9,11 +9,10 @@ POI is the current WIP before we're adding anything else. Should take a month be
 
 Roadmap
 
-1. fix not seeing coords on fullscreen map
-2. popup missing background
-3. Adding a feature to remove waypoints
-4. Waypoint Waypoint memory
-5. Waypoint details
+1. Bugfixes
+2. Adding a feature to remove waypoints
+3. Waypoint Waypoint memory
+4. Waypoint details
 
 
 Currently, contributions, pull requests, and issues are ignored until this roadmap is done. There's a lot of data and exploration to cover before it's done.
