@@ -1,6 +1,6 @@
 ## Interface: 11200
-## Title: Map Coordinates
-## Notes: Shows coordinates on map and provides a way to place waypoints.
+## Title: WaypointsTW
+## Notes: User-managed waypoints and coordinates.
 ## Author: Ferrolune
 ## DefaultState: enabled
 ## LoadOnDemand: 0
@@ -10,3 +10,4 @@
 #beta
 coordinates.lua
 waypoints.lua
+keybinds.lua

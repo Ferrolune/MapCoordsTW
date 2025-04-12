@@ -9,7 +9,7 @@ coordFrame.text:SetPoint("LEFT", coordFrame, "LEFT", 10, 0) -- This ensures the 
 -- Returns true if the currently viewed map matches the player's zone.
 local function IsMapPlayerZone()
     local mapZone = GetMapInfo()
-    local playerZone = GetRealZoneText()
+    local playerZone = GetMapInfo()
     return mapZone == playerZone
 end
 

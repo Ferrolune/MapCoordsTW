@@ -1,0 +1,7 @@
+<Bindings>
+    <Binding name="TOGGLE_WAYPOINT_POPUP" description="Toggles Waypoint Popup" header="WAYPOINT_HEADER" default="J" runOnUp="true">
+        if keystate == "up" then
+            Waypoints_ToggleWaypointPopup();
+        end
+    </Binding>
+</Bindings>

@@ -27,6 +27,7 @@ local wpPopup = CreateFrame("Frame", "WaypointPopupFrame", WorldMapFrame)
 function UpdatewpButtonLocation()
     wpPopup:SetFrameStrata("FULLSCREEN_DIALOG") -- Set higher strata than the map
 
+
     if(WorldMapFrameMaximizeButton:IsVisible()) then
         wpButton:SetPoint("RIGHT", WorldMapFrameMaximizeButton, "LEFT", 4, 0)
     else
@@ -74,7 +75,7 @@ wpPopup.title = wpPopup:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 wpPopup.title:SetPoint("TOP", wpPopup, "TOP", 0, -10)
 wpPopup.title:SetText("Enter Coordinates")
 
-local wpEditBox = CreateFrame("EditBox", nil, wpPopup, "InputBoxTemplate")
+local wpEditBox = CreateFrame("EditBox", "WayPointEditbox", wpPopup, "InputBoxTemplate")
 wpEditBox:SetWidth(180)
 wpEditBox:SetHeight(24)
 wpEditBox:SetPoint("TOP", wpPopup, "TOP", 0, -40)
@@ -107,7 +108,7 @@ local function ExtractCoordinates(input)
 end
 
 
-local function print(message)
+ function print(message)
     DEFAULT_CHAT_FRAME:AddMessage(message, 1.0, 1.0, 0.0)
 end
 
@@ -211,7 +212,7 @@ function UpdateWaypoints()
             wpIcons[i] = CreateFrame("Frame", nil, WorldMapButton)
             wpIcons[i]:SetWidth(12)
             wpIcons[i]:SetHeight(12)
-            wpIcons[i]:SetFrameStrata("TOOLTIP")
+            wpIcons[i]:SetFrameStrata("FULLSCREEN")
             local texture = wpIcons[i]:CreateTexture(nil, "OVERLAY")
             texture:SetAllPoints(wpIcons[i])
             local isHorde = (UnitFactionGroup("player") == "Horde" and true) or false
