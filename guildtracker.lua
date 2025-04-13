@@ -8,12 +8,12 @@ local lastValidCoordinates = {
     y = 0
 }
 local lastValidZone = ""
-
+local senderZone = ""
 -- Send waypoint data
 local function SendWaypoint()
     local name = UnitName("player")
     local currentZone = GetZoneLongName(GetMapInfo())
-    local playerZone = GetZoneText()
+    local playerZone = senderZone
     local playerClass = UnitClass("player")
     local x, y = GetPlayerMapPosition("player")
     x = math.floor(x * 100000 + 0.5) / 1000
@@ -24,26 +24,28 @@ local function SendWaypoint()
         if lastValidCoordinates.x ~= x or lastValidCoordinates.y ~= y then
             lastValidCoordinates.x = x
             lastValidCoordinates.y = y
-            lastValidZone = currentZone
+            lastValidZone = playerZone
         end
     else
-        -- If zones don't match, send the last valid coordinates
+        -- sender is looking at a different map, coords are inaccurate.
+        -- TODO!: fix this behavior, perhaps there's a better method to receive coords.
         x = lastValidCoordinates.x
         y = lastValidCoordinates.y
         currentZone = lastValidZone -- Use the last valid zone name
     end
 
     -- Construct the message to send
-    local msg = string.format("%s,%s,%.2f,%.2f,%s", name, currentZone, x, y, playerClass)
+    local msg = string.format("%s,%s,%.2f,%.2f,%s", name, playerZone, x, y, playerClass)
     SendAddonMessage("WAYPOINTSTW", msg, "GUILD")
 end
 
 -- Convert short zone name to long using global table
- function GetZoneLongName(shortName)
+function GetZoneLongName(shortName)
     local lookup = getglobal("WaypointPopupFrame").ZoneShortsToFullName
     return lookup and lookup[shortName] or shortName
 end
- function Clamp(val, min, max)
+
+function Clamp(val, min, max)
     if val < min then
         return min
     end
@@ -61,34 +63,16 @@ local function HideAllMarkers()
     end
 end
 
-
 -- Create or move a marker for the guildmate on the world map
 -- Function to update or create the map marker for a guildmate
 function UpdateMapMarker(pname, x, y)
     -- Get the current zone of the player
     local currentZone = GetZoneLongName(GetMapInfo())
-
     -- Check if the guildmate is in the same zone
     if GuildMates[pname] and GuildMates[pname].zone == currentZone then
-
         -- Ensure we have a valid marker
         local guildmate = GuildMates[pname]
 
-        if not guildmate.marker then
-            -- Create the marker if it doesn't exist
-            guildmate.marker = CreateFrame("Frame", nil, WorldMapButton)
-            guildmate.marker:SetWidth(20)
-            guildmate.marker:SetHeight(20)
-            guildmate.marker:SetFrameStrata("FULLSCREEN_DIALOG")
-
-            local texture = guildmate.marker:CreateTexture(nil, "OVERLAY")
-            texture:SetTexture(GuildMates[pname].icon)
-            --texture:SetTexture("Interface\\Icons\\Inv_banner_03")
-
-            texture:SetAllPoints(guildmate.marker)
-
-            guildmate.marker.texture = texture
-        end
 
         -- Position the marker based on the coordinates
         local mapWidth = WorldMapButton:GetWidth()
@@ -97,7 +81,6 @@ function UpdateMapMarker(pname, x, y)
         -- Convert x, y to screen coordinates based on the map size (using 0-100 scale)
         local xPos = (x / 100) * mapWidth
         local yPos = (y / 100) * mapHeight
-
         -- Clamp the positions to make sure they don't go outside the map boundaries
         xPos = Clamp(xPos, 0, mapWidth)
         yPos = Clamp(yPos, 0, mapHeight)
@@ -106,20 +89,21 @@ function UpdateMapMarker(pname, x, y)
         guildmate.marker:ClearAllPoints()
         guildmate.marker:SetPoint("TOPLEFT", WorldMapButton, "TOPLEFT", xPos - (guildmate.marker:GetWidth() / 2),
             -(yPos - (guildmate.marker:GetHeight() / 2)))
+        guildmate.marker:SetFrameStrata("FULLSCREEN_DIALOG")
+        GuildMates[pname].marker:Show()
 
-        guildmate.marker:Show()
-    elseif guildmate and guildmate.marker then
+    elseif GuildMates[pname] and GuildMates[pname].marker then
         -- Hide the marker if the guildmate is not in the current zone
-        guildmate.marker:Hide()
+        GuildMates[pname].marker:Hide()
     end
 end
-
-
 
 -- Frame for OnUpdate ticking
 local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript("OnUpdate", function()
-    if not IsInGuild() then return end
+    if not IsInGuild() then
+        return
+    end
     local now = GetTime()
 
     -- Send player data ~60 times a second
@@ -145,7 +129,7 @@ updateFrame:SetScript("OnUpdate", function()
     end
 
     -- Loop through the GuildMates table and check if any guildmate is in the same zone
-    local playerZone = GetZoneLongName(GetZoneText()) -- Current zone of the player
+    local playerZone = GetZoneLongName(GetMapInfo()) -- Current zone of the player
 
     for pname, data in pairs(GuildMates) do
         if data.zone == playerZone then
@@ -154,10 +138,21 @@ updateFrame:SetScript("OnUpdate", function()
             UpdateMapMarker(pname, data.x, data.y)
         else
             -- Hide the marker if the guildmate is not in the same zone
-            if data.marker then
-                data.marker:Hide()
-            end
+
         end
+    end
+end)
+
+local eventSender = CreateFrame("Frame")
+eventSender:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+eventSender:RegisterEvent("PLAYER_ENTERING_WORLD")
+eventSender:SetScript("OnEvent", function()
+    if event == "ZONE_CHANGED_NEW_AREA" then
+        senderZone = arg1
+    end
+
+    if event == "PLAYER_ENTERING_WORLD" then
+        senderZone = GetZoneLongName(GetMapInfo())
     end
 end)
 
@@ -169,6 +164,7 @@ eventReceiver:SetScript("OnEvent", function()
     if event == "CHAT_MSG_ADDON" and arg1 == "WAYPOINTSTW" then
         local pname, zone, x, y, class
         local i = 0
+
         string.gsub(arg2, "([^,]+)", function(match)
             i = i + 1
             if i == 1 then
@@ -194,9 +190,10 @@ eventReceiver:SetScript("OnEvent", function()
                 GuildMates[pname].lastupdate = GetTime()
                 GuildMates[pname].class = class
                 -- If the player is in the same zone, move the marker or show it
-                if GetZoneLongName(GetZoneText()) == zone then
+                if GetZoneLongName(GetMapInfo()) == zone then
+                    print(GetZoneLongName(GetMapInfo()))
                     UpdateMapMarker(pname, x, y)
-                elseif GuildMates[pname].marker then
+                else
                     GuildMates[pname].marker:Hide() -- Hide the marker if the guildmate is not in the same zone
                 end
             else
@@ -211,8 +208,23 @@ eventReceiver:SetScript("OnEvent", function()
                     icon = getglobal("WaypointPopupFrame").classIcons[class]
                 }
 
+                if not GuildMates[pname].marker then
+                    -- Create the marker if it doesn't exist
+                    GuildMates[pname].marker = CreateFrame("Frame", nil, WorldMapButton)
+                    GuildMates[pname].marker:SetWidth(20)
+                    GuildMates[pname].marker:SetHeight(20)
+                    GuildMates[pname].marker:SetFrameStrata("FULLSCREEN_DIALOG")
+
+                    local texture = GuildMates[pname].marker:CreateTexture(nil, "OVERLAY")
+                    texture:SetTexture(GuildMates[pname].icon)
+                    -- texture:SetTexture("Interface\\Icons\\Inv_banner_03")
+
+                    texture:SetAllPoints(GuildMates[pname].marker)
+                    GuildMates[pname].marker.texture = texture
+                end
+
                 -- If the player is in the same zone, create the marker right away
-                if GetZoneLongName(GetZoneText()) == zone then
+                if GetZoneLongName(GetMapInfo()) == zone then
                     UpdateMapMarker(pname, x, y)
                 end
             end
@@ -223,22 +235,19 @@ eventReceiver:SetScript("OnEvent", function()
 
     end
 end)
+
 function print(msg)
     DEFAULT_CHAT_FRAME:AddMessage(msg)
-
 end
-
 
 -- Optional for some servers
 if RegisterAddonMessagePrefix then
     RegisterAddonMessagePrefix("WAYPOINTSTW")
 end
 
-
-
 -- This function will be called when the map is clicked.
 local function OnMapClick()
-    local currentZone = GetZoneLongName(GetMapInfo()) -- Get current zone name
+    local currentZone = GetZoneLongName(GetMapInfo()) -- Get current shown zone name
 
     -- Loop through the GuildMates table and check if their zone matches the current zone
     for pname, data in pairs(GuildMates) do
@@ -248,10 +257,7 @@ local function OnMapClick()
                 data.marker:Show()
             end
         else
-            -- Hide the marker if they are not in the same zone
-            if data.marker then
-                data.marker:Hide()
-            end
+            data.marker:Hide()
         end
     end
 end
