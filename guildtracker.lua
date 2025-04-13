@@ -119,6 +119,7 @@ end
 -- Frame for OnUpdate ticking
 local updateFrame = CreateFrame("Frame")
 updateFrame:SetScript("OnUpdate", function()
+    if not IsInGuild() then return end
     local now = GetTime()
 
     -- Send player data ~60 times a second
