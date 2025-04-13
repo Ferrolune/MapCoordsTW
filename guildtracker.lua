@@ -11,6 +11,7 @@ local lastValidZone = ""
 local senderZone = ""
 -- Send waypoint data
 local function SendWaypoint()
+    if(senderZone == nil) then senderZone = GetZoneLongName(GetMapInfo()) end
     local name = UnitName("player")
     local currentZone = GetZoneLongName(GetMapInfo())
     local playerZone = senderZone
@@ -35,8 +36,10 @@ local function SendWaypoint()
     end
 
     -- Construct the message to send
-    local msg = string.format("%s,%s,%.2f,%.2f,%s", name, playerZone, x, y, playerClass)
-    SendAddonMessage("WAYPOINTSTW", msg, "GUILD")
+    if(name and currentZone and playerZone and playerClass and x and y) then
+        local msg = string.format("%s,%s,%.2f,%.2f,%s", name, playerZone, x, y, playerClass)
+        SendAddonMessage("WAYPOINTSTW", msg, "GUILD")
+    end
 end
 
 -- Convert short zone name to long using global table
@@ -191,7 +194,6 @@ eventReceiver:SetScript("OnEvent", function()
                 GuildMates[pname].class = class
                 -- If the player is in the same zone, move the marker or show it
                 if GetZoneLongName(GetMapInfo()) == zone then
-                    print(GetZoneLongName(GetMapInfo()))
                     UpdateMapMarker(pname, x, y)
                 else
                     GuildMates[pname].marker:Hide() -- Hide the marker if the guildmate is not in the same zone
