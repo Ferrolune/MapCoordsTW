@@ -99,6 +99,7 @@ function UpdateMapMarker(pname, x, y)
         -- Hide the marker if the guildmate is not in the current zone
         GuildMates[pname].marker:Hide()
     end
+    if x == 0 and y == 0 then GuildMates[pname].marker:Hide() end
 end
 
 -- Frame for OnUpdate ticking
