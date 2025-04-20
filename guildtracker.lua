@@ -69,6 +69,7 @@ end
 -- Create or move a marker for the guildmate on the world map
 -- Function to update or create the map marker for a guildmate
 function UpdateMapMarker(pname, x, y)
+    if pname == UnitName("player") then return end
     -- Get the current zone of the player
     local currentZone = GetZoneLongName(GetMapInfo())
     -- Check if the guildmate is in the same zone
